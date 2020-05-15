@@ -33,6 +33,7 @@ import { MapTilesService } from '../../_service/map/map-tiles.service';
 
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { HomeComponent } from 'app/homepage/homepage.component';
+import {NgxPaginationModule} from 'ngx-pagination'; 
 
 @NgModule({
   imports: [
@@ -48,7 +49,7 @@ import { HomeComponent } from 'app/homepage/homepage.component';
     MatTooltipModule,
     MatSortModule,
     HttpClientModule,
-    
+    NgxPaginationModule,
     BsDatepickerModule.forRoot()
   ],
   providers: [

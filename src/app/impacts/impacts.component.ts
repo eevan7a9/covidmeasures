@@ -23,6 +23,9 @@ export class ImpactsComponent implements OnInit {
   public impactHeaders = ['Location', 'Impact', 'Description', 'Measure', 'Source'];
   public impacts: Impact[] = [];
 
+  page: number = 1; // current pagination page
+  collection: any[];  
+
   constructor(
     private titleService: Title,
     private http: HttpClient
@@ -34,6 +37,18 @@ export class ImpactsComponent implements OnInit {
 
     const url = `${aws}/impacts.json`;
     this.impacts = (await this.http.get(url).toPromise() as any);
+    this.collection = this.impacts
+  }
+
+  public applyFilter(event: Event){
+    const word = (event.target as any).value.toLowerCase();
+    const results = this.impacts.filter(item => {
+      if(item.location.toLowerCase().includes(word)) return item;
+      if(item.impact.toLowerCase().includes(word)) return item;
+      if(item.description.toLowerCase().includes(word)) return item;
+      if(item.measure.toLowerCase().includes(word)) return item;
+    });
+    this.collection = results
   }
 
 }
