@@ -36,7 +36,7 @@
                 </th>
               </thead>
               <tbody>
-                <tr *ngFor="let row of collection | paginate: { itemsPerPage: 8, currentPage: page }">
+                <tr *ngFor="let row of collection | paginate: { itemsPerPage: 10, currentPage: page }">
                   <td>{{ row.location }}</td>
                   <td>{{ row.impact }}</td>
                   <td>{{ row.description }}</td>
