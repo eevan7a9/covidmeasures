@@ -34,8 +34,14 @@
                 Add an Impact
               </span>
             </a>
-          </div>
-          <div class="col-md-1"></div>
+
+          </h3>
+          <mat-form-field>
+            <mat-label style="color: rgb(218, 205, 205);">Search by country, measure or key word</mat-label>
+            <input  matInput (keyup)="applyFilter($event)" [(ngModel)]="filterCountry"
+              placeholder="United States of America, France, China..."
+            >
+          </mat-form-field>
         </div>
         <hr>
 
@@ -49,7 +55,7 @@
                 </th>
               </thead>
               <tbody>
-                <tr *ngFor="let row of impacts">
+                <tr *ngFor="let row of collection | paginate: { itemsPerPage: 10, currentPage: page }">
                   <td>{{ row.location }}</td>
                   <td>{{ row.impact }}</td>
                   <td>{{ row.description }}</td>
@@ -63,6 +69,9 @@
                 </tr>
               </tbody>
             </table>
+            <div class="d-flex justify-content-center">
+              <pagination-controls (pageChange)="page = $event" class="my-pagination"></pagination-controls>
+            </div>
             </div>
     
         </div>
