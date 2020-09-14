@@ -14,7 +14,7 @@ import { MasksComponent } from '../../masks/masks.component';
 import { TestingComponent } from '../../testing/testing.component';
 import { AboutUsComponent } from '../../about-us/about-us.component';
 import { NewsVideosComponent } from '../../news-videos/news-videos.component';
-
+import { SchoolEvolutionComponent } from '../../school-evolution/school-evolution.component';
 export const AdminLayoutRoutes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'country', component: CountryComponent, pathMatch: 'full' },
@@ -31,5 +31,6 @@ export const AdminLayoutRoutes: Routes = [
   { path: 'masks', component: MasksComponent },
   { path: 'testing', component: TestingComponent },
   { path: 'aboutus', component: AboutUsComponent },
-  { path: 'news', component: NewsVideosComponent }
+  { path: 'news', component: NewsVideosComponent },
+  { path: 'school-evolution', component: SchoolEvolutionComponent }
 ];

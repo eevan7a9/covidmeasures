@@ -9,7 +9,7 @@ import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.compon
 const routes: Routes =[
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'school-evolution',
     pathMatch: 'full',
   }, {
     path: '',

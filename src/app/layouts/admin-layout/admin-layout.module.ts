@@ -7,6 +7,7 @@ import { AdminLayoutRoutes } from './admin-layout.routing';
 import { CountryComponent } from '../../country/country.component';
 import { LockdownComponent } from '../../lockdown/lockdown.component';
 import { SchoolComponent } from '../../school/school.component';
+import {SchoolEvolutionComponent} from '../../school-evolution/school-evolution.component';
 import { ImpactsComponent } from '../../impacts/impacts.component';
 import { CovidComponent } from '../../covid/covid.component';
 import { DeathRatesComponent } from '../../death-rates/death-rates.component';
@@ -26,6 +27,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatDialogModule } from '@angular/material/dialog';
 
 import { MapSchoolClosureComponent } from '../../components/maps/map-school-closure/map-school-closure.component';
+import { MapSchoolEvolutionComponent } from '../../components/maps/map-school-evolution/map-school-evolution.component';
 import { MapLockdownComponent } from '../../components/maps/map-lockdown/map-lockdown.component';
 import { MapMasksComponent } from '../../components/maps/map-masks/map-masks.component';
 import { MarkerService } from '../../_service/map/marker.service';
@@ -73,6 +75,7 @@ import { NewsVideosComponent } from '../../news-videos/news-videos.component';
     CountryComponent,
     LockdownComponent,
     SchoolComponent,
+    SchoolEvolutionComponent,
     ImpactsComponent,
     CovidComponent,
     DeathRatesComponent,
@@ -84,6 +87,7 @@ import { NewsVideosComponent } from '../../news-videos/news-videos.component';
     MasksComponent,
     TestingComponent,
     MapSchoolClosureComponent,
+    MapSchoolEvolutionComponent,
     MapLockdownComponent,
     MapMasksComponent,
     DisqusCommentsComponent,
