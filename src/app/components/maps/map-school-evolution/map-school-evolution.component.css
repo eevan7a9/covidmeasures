@@ -39,3 +39,16 @@
   margin-right: 8px;
   opacity: 0.7;
 }
+::ng-deep .display-date {
+  font-size: 40px;
+  font-weight: 900;
+  color: #151515;
+  text-shadow: 2px 2px #81c285;
+  font-family: "Courier New", Courier, monospace;
+}
+
+::ng-deep .date-label {
+  font-size: 20px;
+  font-weight: 600;
+  color: #151515;
+}

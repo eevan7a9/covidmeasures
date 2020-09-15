@@ -40,6 +40,8 @@ export class MapSchoolEvolutionComponent implements OnInit {
   private map: L.map;
   private info: L.control;
   private legend: L.control;
+
+  private displayDate: string;
   @Input() countries: Array<Country>;
 
   constructor(
@@ -47,8 +49,12 @@ export class MapSchoolEvolutionComponent implements OnInit {
     private mapTiles: MapTilesService
   ) {}
   ngOnInit(): void {
+    const casesDate = new Date();
+    this.displayDate = `${casesDate.getFullYear()}/${
+      casesDate.getMonth() + 1
+    }/${casesDate.getDate()}`;
     this.initMap();
-    this.addInfoBox();
+    this.addInfoBox(this.displayDate);
     this.addLegend();
     this.shapeService.getCountriesShapes().subscribe((country) => {
       country.features.forEach((item) => {
@@ -64,6 +70,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
       });
       this.initStatesLayer(country);
     });
+
     // we populate the maps with markers
     // this.markerService.makeStateMarkers(this.map);
     // this.markerService.makeStateCircleMarkers(this.map);
@@ -81,13 +88,17 @@ export class MapSchoolEvolutionComponent implements OnInit {
     this.mapTiles.addTiles(this.map);
   }
 
-  private addInfoBox() {
+  private addInfoBox(displayDate) {
     // we add info box
     this.info = L.control();
 
     this.info.onAdd = function (map) {
       this._div = L.DomUtil.create("div", "info"); // create a div with a class "info"
       this.update();
+      this._div.innerHTML =
+        `<h4 class="date-label">Current Date :</h4>` +
+        `<h1 class="display-date">${displayDate}</h1>`;
+      console.log(displayDate);
       return this._div;
     };
 
@@ -108,27 +119,27 @@ export class MapSchoolEvolutionComponent implements OnInit {
 
     // method that we will use to update the control based on feature properties passed
     this.info.update = function (country: Country) {
-      this._div.innerHTML =
-        "<h4>Current Date :</h4>" + 'Something'
-        // (country
-        //   ? `<b>${country.name}</b><br />
-        //   <span style="color:${getTextColor(
-        //     country.status,
-        //     country.current_coverage
-        //   )}; text-shadow: 1px 1px 1px #000;">
-        //     ${
-        //       country.status == "No data"
-        //         ? ""
-        //         : country.status == "Closed" &&
-        //           country.current_coverage == "General"
-        //         ? "Nationwide closure"
-        //         : country.status == "Closed" &&
-        //           country.current_coverage == "Partial"
-        //         ? "Partial closure"
-        //         : country.status
-        //     }
-        //   </span>`
-        //   : "Hover over a Country");
+      // this._div.innerHTML =
+      //   "<h4>Current Date :</h4>" +
+      // (country
+      //   ? `<b>${country.name}</b><br />
+      //   <span style="color:${getTextColor(
+      //     country.status,
+      //     country.current_coverage
+      //   )}; text-shadow: 1px 1px 1px #000;">
+      //     ${
+      //       country.status == "No data"
+      //         ? ""
+      //         : country.status == "Closed" &&
+      //           country.current_coverage == "General"
+      //         ? "Nationwide closure"
+      //         : country.status == "Closed" &&
+      //           country.current_coverage == "Partial"
+      //         ? "Partial closure"
+      //         : country.status
+      //     }
+      //   </span>`
+      //   : "Hover over a Country");
     };
 
     this.info.addTo(this.map);
@@ -136,7 +147,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
 
   private addLegend() {
     // we add legends to our map
-    this.legend = L.control({ position: "bottomright" });
+    this.legend = L.control({ position: "bottomleft" });
     this.legend.onAdd = function (map) {
       const div = L.DomUtil.create("div", "info legend");
       const status = [
@@ -173,11 +184,11 @@ export class MapSchoolEvolutionComponent implements OnInit {
         fillOpacity: 0.8,
         fillColor: this.getFillColor(feature.countryData),
       }),
-      onEachFeature: (feature, layer) =>
-        layer.bindPopup(this.clickedCountry(feature.countryData)).on({
-          mouseover: (e) => this.highlightFeature(e),
-          mouseout: (e) => this.resetFeature(e),
-        }),
+      // onEachFeature: (feature, layer) =>
+      //   layer.bindPopup(this.clickedCountry(feature.countryData)).on({
+      //     mouseover: (e) => this.highlightFeature(e),
+      //     mouseout: (e) => this.resetFeature(e),
+      //   }),
     });
     this.map.addLayer(stateLayer);
   }
@@ -246,4 +257,21 @@ export class MapSchoolEvolutionComponent implements OnInit {
       `;
     }
   }
+
+  public pressEnter() {
+    const casesDate = new Date(this.displayDate);
+    console.log("enter pressed " + casesDate);
+  }
 }
+
+// “No data”: “#E3E3E3
+// ",
+// 0 = “No closure”: “#28A745
+// ",
+// 1 =“Closure recommended”: “#17A2B8
+// ",
+// 2 = “Closure(some levels) “: “#EE7F08
+// ”,
+// 3 = “Closure(all levels) “: “#E6595A
+// ”,
+// “default ”: “#555” (edited)
