@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
-import PerfectScrollbar from 'perfect-scrollbar';
+// import PerfectScrollbar from 'perfect-scrollbar';
 import { Title } from '@angular/platform-browser';
 
 @Component({
@@ -23,21 +23,21 @@ export class AdminLayoutComponent implements OnInit {
     setInterval(() => Date.now(), 500);
   }
 
-  ngAfterViewInit() {
-      this.runOnRouteChange();
-  }
+  // ngAfterViewInit() {
+  //     this.runOnRouteChange();
+  // }
 
   ngAfterContentChecked(){
     this.title = this.titleService.getTitle().split(':')[0]
   }
 
-  runOnRouteChange(): void {
-    if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac()) {
-      const elemMainPanel = <HTMLElement>document.querySelector('.main-panel');
-      const ps = new PerfectScrollbar(elemMainPanel);
-      ps.update();
-    }
-  }
+  // runOnRouteChange(): void {
+  //   if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac()) {
+  //     const elemMainPanel = <HTMLElement>document.querySelector('.main-panel');
+  //     const ps = new PerfectScrollbar(elemMainPanel);
+  //     ps.update();
+  //   }
+  // }
 
   isMac(): boolean {
     return (navigator.platform.toUpperCase().indexOf('MAC') >= 0 || navigator.platform.toUpperCase().indexOf('IPAD') >= 0);
