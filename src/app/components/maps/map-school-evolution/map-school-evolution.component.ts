@@ -6,14 +6,12 @@ import { ShapeService } from "../../../_service/map/shape.service";
 import { MapTilesService } from "../../../_service/map/map-tiles.service";
 
 const colors = {
-  "No data": "#e3e3e3",
-  "No closure": "#28a745",
-  "Re-opening": "#ffeb3b",
-  "Re-opened": "#17a2b8",
-  "Nationwide closure": "#e6595a",
-  "Partial closure": "#ee7f08",
-  Closed: "#e6595a",
-  default: "#555",
+  "No data": "#E3E3E3",
+  "0": "#28A745",
+  "1": "#17A2B8",
+  "2": "#EE7F08",
+  "3": "#E6595A",
+  "default ": "#555",
 };
 
 interface Country {
@@ -41,20 +39,23 @@ export class MapSchoolEvolutionComponent implements OnInit {
   private info: L.control;
   private legend: L.control;
 
-  private displayDate: string;
+  public displayDate: Date;
   @Input() countries: Array<Country>;
+  @Input() evolutionData: {
+    dates: Array<string>;
+    data: {};
+  };
 
   constructor(
     private shapeService: ShapeService,
     private mapTiles: MapTilesService
   ) {}
   ngOnInit(): void {
-    const casesDate = new Date();
-    this.displayDate = `${casesDate.getFullYear()}/${
-      casesDate.getMonth() + 1
-    }/${casesDate.getDate()}`;
+    console.log("component");
+    console.log(this.evolutionData);
+    this.displayDate = new Date();
     this.initMap();
-    this.addInfoBox(this.displayDate);
+    this.addInfoBox(this.formatDate(this.displayDate));
     this.addLegend();
     this.shapeService.getCountriesShapes().subscribe((country) => {
       country.features.forEach((item) => {
@@ -98,7 +99,6 @@ export class MapSchoolEvolutionComponent implements OnInit {
       this._div.innerHTML =
         `<h4 class="date-label">Current Date :</h4>` +
         `<h1 class="display-date">${displayDate}</h1>`;
-      console.log(displayDate);
       return this._div;
     };
 
@@ -118,28 +118,10 @@ export class MapSchoolEvolutionComponent implements OnInit {
     // };
 
     // method that we will use to update the control based on feature properties passed
-    this.info.update = function (country: Country) {
-      // this._div.innerHTML =
-      //   "<h4>Current Date :</h4>" +
-      // (country
-      //   ? `<b>${country.name}</b><br />
-      //   <span style="color:${getTextColor(
-      //     country.status,
-      //     country.current_coverage
-      //   )}; text-shadow: 1px 1px 1px #000;">
-      //     ${
-      //       country.status == "No data"
-      //         ? ""
-      //         : country.status == "Closed" &&
-      //           country.current_coverage == "General"
-      //         ? "Nationwide closure"
-      //         : country.status == "Closed" &&
-      //           country.current_coverage == "Partial"
-      //         ? "Partial closure"
-      //         : country.status
-      //     }
-      //   </span>`
-      //   : "Hover over a Country");
+    this.info.update = function (displayDate) {
+      this._div.innerHTML =
+        `<h4 class="date-label">Current Date :</h4>` +
+        `<h1 class="display-date">${displayDate}</h1>`;
     };
 
     this.info.addTo(this.map);
@@ -150,13 +132,14 @@ export class MapSchoolEvolutionComponent implements OnInit {
     this.legend = L.control({ position: "bottomleft" });
     this.legend.onAdd = function (map) {
       const div = L.DomUtil.create("div", "info legend");
-      const status = [
-        "No data",
+      const status = ["No Data", "0", "1", "2", "3", "default"];
+      const labels = [
+        "No Data",
         "No closure",
-        "Nationwide closure",
-        "Partial closure",
-        "Re-opening",
-        "Re-opened",
+        "Closure recommended",
+        "Closure(some levels)",
+        "Closure(all levels)",
+        "default",
       ];
 
       // loop through our density intervals and generate a label with a colored square for each interval
@@ -165,7 +148,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
           '<i style="background:' +
           colors[status[i]] +
           '"></i>    <strong>' +
-          status[i] +
+          labels[i] +
           "</strong> <br>";
       }
 
@@ -194,6 +177,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
   }
 
   private getFillColor(country: Country) {
+    console.log(country);
     if (country) {
       let status = country.status;
       if (status === "Closed") {
@@ -235,19 +219,19 @@ export class MapSchoolEvolutionComponent implements OnInit {
             <strong>${country.name}</strong>
           </h6>
           <div class="pb-2">
-          <p class="p-0 m-0">
-            <strong>Current coverage:</strong> ${country.current_coverage}
-          </p>
-          <p class="p-0 m-0">
-            <strong>Start date:</strong> ${country.start}
-          </p>
-          <p class="p-0 m-0">
-            <strong>Start softening date:</strong> ${country.start_reopening}
-          </p>
-          <p class="p-0 m-0">
-            <strong>End date:</strong> ${country.end}
-          </p>
-        </div>
+            <p class="p-0 m-0">
+              <strong>Current coverage:</strong> ${country.current_coverage}
+            </p>
+            <p class="p-0 m-0">
+              <strong>Start date:</strong> ${country.start}
+            </p>
+            <p class="p-0 m-0">
+              <strong>Start softening date:</strong> ${country.start_reopening}
+            </p>
+            <p class="p-0 m-0">
+              <strong>End date:</strong> ${country.end}
+            </p>
+          </div>
           <div class="d-flex justify-content-center">
             <a href="#/country/${country.alpha3}">
               <button class="mat-raised-button mat-button-base mat-primary text-light">More Details</button>
@@ -258,9 +242,23 @@ export class MapSchoolEvolutionComponent implements OnInit {
     }
   }
 
-  public pressEnter() {
-    const casesDate = new Date(this.displayDate);
-    console.log("enter pressed " + casesDate);
+  private increaseDate(theDate: Date, day: number = 1): void {
+    theDate.setDate(theDate.getDate() + day);
+    this.info.update(this.formatDate(this.displayDate));
+  }
+
+  private decreaseDate(theDate: Date, day: number = 1): void {
+    theDate.setDate(theDate.getDate() - day);
+    this.info.update(this.formatDate(this.displayDate));
+  }
+
+  private formatDate(date: Date): string {
+    const casesDate = date;
+    const month = casesDate.getMonth() + 1;
+    const formattedDate = `${casesDate.getFullYear()}/${
+      month < 10 ? "0" + month : month
+    }/${casesDate.getDate()}`;
+    return formattedDate;
   }
 }
 

@@ -12,6 +12,7 @@ export class SchoolEvolutionComponent implements OnInit {
   public schoolClosureData: any;
   public schoolClosureTableUpdatedOn: string;
   public isMobile: boolean;
+  public evolutionData: any;
   constructor(
     private titleService: Title,
     private http: HttpClient,
@@ -27,8 +28,10 @@ export class SchoolEvolutionComponent implements OnInit {
     this.schoolClosureData = await this.http
       .get(`${aws}/school_closure.json`)
       .toPromise();
+    this.evolutionData = await this.http
+      .get(`${aws}/evolution.json`)
+      .toPromise();
     this.schoolClosureTableUpdatedOn = this.schoolClosureData.updatedOn;
-    console.log(this.schoolClosureData);
     this.changeDetector.detectChanges();
   }
 }

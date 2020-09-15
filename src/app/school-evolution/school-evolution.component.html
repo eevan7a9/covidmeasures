@@ -5,8 +5,13 @@
       <div class="card-header card-header-success">
         <h3 class="card-title">Map - School Closure Evolution</h3>
       </div>
-      <div class="card-body" style="height: 90vh" *ngIf="schoolClosureData">
+      <div
+        class="card-body"
+        style="height: 90vh"
+        *ngIf="schoolClosureData && evolutionData"
+      >
         <app-map-school-evolution
+          [evolutionData]="evolutionData"
           [countries]="schoolClosureData.countries"
         ></app-map-school-evolution>
       </div>
