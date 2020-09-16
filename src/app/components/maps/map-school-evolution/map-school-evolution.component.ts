@@ -39,7 +39,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
   private info: L.control;
   private legend: L.control;
 
-  public displayDate: Date;
+  public casesDate: Date;
   @Input() countries: Array<Country>;
   @Input() evolutionData: {
     dates: Array<string>;
@@ -51,23 +51,28 @@ export class MapSchoolEvolutionComponent implements OnInit {
     private mapTiles: MapTilesService
   ) {}
   ngOnInit(): void {
-    console.log("component");
-    console.log(this.evolutionData);
-    this.displayDate = new Date();
+    this.casesDate = new Date("2020/09/14");
+
     this.initMap();
-    this.addInfoBox(this.formatDate(this.displayDate));
+    this.addInfoBox(this.formatDateDefault(this.casesDate));
     this.addLegend();
     this.shapeService.getCountriesShapes().subscribe((country) => {
       country.features.forEach((item) => {
-        const foundCountry = this.countries.find(
-          (country) => country.alpha3 === item.id
-        );
-        if (foundCountry) {
-          // we add data from apit to each country
-          item.countryData = foundCountry;
+        if (item.id in this.evolutionData.data) {
+          item.evolutionData = this.evolutionData.data[item.id];
+          // console.log("is found ", item);
         } else {
-          item.countryData = null;
+          item.evolutionData = null;
         }
+        // const foundCountry = this.countries.find(
+        //   (country) => country.alpha3 === item.id
+        // );
+        // if (foundCountry) {
+        //   // we add data from apit to each country
+        //   item.countryData = foundCountry;
+        // } else {
+        //   item.countryData = null;
+        // }
       });
       this.initStatesLayer(country);
     });
@@ -165,7 +170,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
         opacity: 0.5,
         color: "aliceblue",
         fillOpacity: 0.8,
-        fillColor: this.getFillColor(feature.countryData),
+        fillColor: this.getFillColor(feature.evolutionData),
       }),
       // onEachFeature: (feature, layer) =>
       //   layer.bindPopup(this.clickedCountry(feature.countryData)).on({
@@ -176,88 +181,110 @@ export class MapSchoolEvolutionComponent implements OnInit {
     this.map.addLayer(stateLayer);
   }
 
-  private getFillColor(country: Country) {
-    console.log(country);
-    if (country) {
-      let status = country.status;
-      if (status === "Closed") {
-        status =
-          country.current_coverage === "General"
-            ? "Nationwide closure"
-            : "Partial closure";
+  private getFillColor(evolutionData) {
+    if (evolutionData) {
+      const caseDate = this.formatDateDMY(this.casesDate);
+      const dataIndex = this.evolutionData.dates.findIndex(
+        (date) => date == caseDate
+      );
+      if (evolutionData.school_closure) {
+        return colors[evolutionData.school_closure[dataIndex]];
       }
-      return colors[status];
+      return colors["No data"];
     }
     return colors["No data"];
   }
 
-  private highlightFeature(e) {
-    const layer = e.target;
-    layer.setStyle({
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.6,
-    });
-    this.info.update(layer.feature.countryData);
-  }
+  // private highlightFeature(e) {
+  //   const layer = e.target;
+  //   layer.setStyle({
+  //     weight: 2,
+  //     opacity: 1,
+  //     fillOpacity: 0.6,
+  //   });
+  //   this.info.update(layer.feature.countryData);
+  // }
 
-  private resetFeature(e) {
-    const layer = e.target;
-    layer.setStyle({
-      weight: 3,
-      opacity: 0.5,
-      color: "aliceblue",
-      fillOpacity: 0.8,
-    });
-    this.info.update();
-  }
-  private clickedCountry(country) {
-    if (country) {
-      return `
-        <div>
-          <h6>
-            <strong>${country.name}</strong>
-          </h6>
-          <div class="pb-2">
-            <p class="p-0 m-0">
-              <strong>Current coverage:</strong> ${country.current_coverage}
-            </p>
-            <p class="p-0 m-0">
-              <strong>Start date:</strong> ${country.start}
-            </p>
-            <p class="p-0 m-0">
-              <strong>Start softening date:</strong> ${country.start_reopening}
-            </p>
-            <p class="p-0 m-0">
-              <strong>End date:</strong> ${country.end}
-            </p>
-          </div>
-          <div class="d-flex justify-content-center">
-            <a href="#/country/${country.alpha3}">
-              <button class="mat-raised-button mat-button-base mat-primary text-light">More Details</button>
-            </a>
-          </div>
-        </div>
-      `;
-    }
-  }
-
+  // private resetFeature(e) {
+  //   const layer = e.target;
+  //   layer.setStyle({
+  //     weight: 3,
+  //     opacity: 0.5,
+  //     color: "aliceblue",
+  //     fillOpacity: 0.8,
+  //   });
+  //   this.info.update();
+  // }
+  // private clickedCountry(country) {
+  //   if (country) {
+  //     return `
+  //       <div>
+  //         <h6>
+  //           <strong>${country.name}</strong>
+  //         </h6>
+  //         <div class="pb-2">
+  //           <p class="p-0 m-0">
+  //             <strong>Current coverage:</strong> ${country.current_coverage}
+  //           </p>
+  //           <p class="p-0 m-0">
+  //             <strong>Start date:</strong> ${country.start}
+  //           </p>
+  //           <p class="p-0 m-0">
+  //             <strong>Start softening date:</strong> ${country.start_reopening}
+  //           </p>
+  //           <p class="p-0 m-0">
+  //             <strong>End date:</strong> ${country.end}
+  //           </p>
+  //         </div>
+  //         <div class="d-flex justify-content-center">
+  //           <a href="#/country/${country.alpha3}">
+  //             <button class="mat-raised-button mat-button-base mat-primary text-light">More Details</button>
+  //           </a>
+  //         </div>
+  //       </div>
+  //     `;
+  //   }
+  // }
+  /**
+   *
+   * @param theDate date object that will be increased
+   * @param day the number of days the date will be increase
+   */
   private increaseDate(theDate: Date, day: number = 1): void {
     theDate.setDate(theDate.getDate() + day);
-    this.info.update(this.formatDate(this.displayDate));
+    this.info.update(this.formatDateDefault(this.casesDate));
   }
-
+  /**
+   *
+   * @param theDate date object that will be decreased
+   * @param day the number of days the date will be decrease
+   */
   private decreaseDate(theDate: Date, day: number = 1): void {
     theDate.setDate(theDate.getDate() - day);
-    this.info.update(this.formatDate(this.displayDate));
+    this.info.update(this.formatDateDefault(this.casesDate));
   }
-
-  private formatDate(date: Date): string {
-    const casesDate = date;
-    const month = casesDate.getMonth() + 1;
-    const formattedDate = `${casesDate.getFullYear()}/${
+  /**
+   *
+   * @param date a Date obj will be formatted into year/month/day
+   */
+  private formatDateDefault(date: Date): string {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const formattedDate = `${date.getFullYear()}/${
       month < 10 ? "0" + month : month
-    }/${casesDate.getDate()}`;
+    }/${day < 10 ? "0" + day : day}`;
+    return formattedDate;
+  }
+  /**
+   *
+   * @param date a Date obj will be formatted into day/month/year
+   */
+  private formatDateDMY(date: Date) {
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const formattedDate = `${day < 10 ? "0" + day : day}/${
+      month < 10 ? "0" + month : month
+    }/${date.getFullYear()}`;
     return formattedDate;
   }
 }
