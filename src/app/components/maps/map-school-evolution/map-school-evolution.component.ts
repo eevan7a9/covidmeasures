@@ -38,7 +38,9 @@ export class MapSchoolEvolutionComponent implements OnInit {
   private map: L.map;
   private info: L.control;
   private legend: L.control;
+  private stateLayer;
 
+  private isPlayingEvolution = false;
   public casesDate: Date;
   @Input() countries: Array<Country>;
   @Input() evolutionData: {
@@ -51,32 +53,12 @@ export class MapSchoolEvolutionComponent implements OnInit {
     private mapTiles: MapTilesService
   ) {}
   ngOnInit(): void {
-    this.casesDate = new Date("2020/09/14");
-
+    this.casesDate = new Date("2020/09/16");
+    this.casesDate.setDate(this.casesDate.getDate() - 1);
     this.initMap();
-    this.addInfoBox(this.formatDateDefault(this.casesDate));
+    this.addInfoBox(this.stringDateDefault(this.casesDate));
     this.addLegend();
-    this.shapeService.getCountriesShapes().subscribe((country) => {
-      country.features.forEach((item) => {
-        if (item.id in this.evolutionData.data) {
-          item.evolutionData = this.evolutionData.data[item.id];
-          // console.log("is found ", item);
-        } else {
-          item.evolutionData = null;
-        }
-        // const foundCountry = this.countries.find(
-        //   (country) => country.alpha3 === item.id
-        // );
-        // if (foundCountry) {
-        //   // we add data from apit to each country
-        //   item.countryData = foundCountry;
-        // } else {
-        //   item.countryData = null;
-        // }
-      });
-      this.initStatesLayer(country);
-    });
-
+    this.setMapLayers();
     // we populate the maps with markers
     // this.markerService.makeStateMarkers(this.map);
     // this.markerService.makeStateCircleMarkers(this.map);
@@ -102,7 +84,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
       this._div = L.DomUtil.create("div", "info"); // create a div with a class "info"
       this.update();
       this._div.innerHTML =
-        `<h4 class="date-label">Current Date :</h4>` +
+        `<h4 class="date-label">Cases Date :</h4>` +
         `<h1 class="display-date">${displayDate}</h1>`;
       return this._div;
     };
@@ -125,7 +107,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
     // method that we will use to update the control based on feature properties passed
     this.info.update = function (displayDate) {
       this._div.innerHTML =
-        `<h4 class="date-label">Current Date :</h4>` +
+        `<h4 class="date-label">Cases Date :</h4>` +
         `<h1 class="display-date">${displayDate}</h1>`;
     };
 
@@ -164,7 +146,10 @@ export class MapSchoolEvolutionComponent implements OnInit {
   }
 
   private initStatesLayer(item) {
-    const stateLayer = L.geoJSON(item, {
+    if (this.stateLayer) {
+      this.map.removeLayer(this.stateLayer);
+    }
+    this.stateLayer = L.geoJSON(item, {
       style: (feature) => ({
         weight: 3,
         opacity: 0.5,
@@ -172,18 +157,13 @@ export class MapSchoolEvolutionComponent implements OnInit {
         fillOpacity: 0.8,
         fillColor: this.getFillColor(feature.evolutionData),
       }),
-      // onEachFeature: (feature, layer) =>
-      //   layer.bindPopup(this.clickedCountry(feature.countryData)).on({
-      //     mouseover: (e) => this.highlightFeature(e),
-      //     mouseout: (e) => this.resetFeature(e),
-      //   }),
     });
-    this.map.addLayer(stateLayer);
+    this.map.addLayer(this.stateLayer);
   }
 
   private getFillColor(evolutionData) {
     if (evolutionData) {
-      const caseDate = this.formatDateDMY(this.casesDate);
+      const caseDate = this.stringDateDMY(this.casesDate);
       const dataIndex = this.evolutionData.dates.findIndex(
         (date) => date == caseDate
       );
@@ -245,6 +225,19 @@ export class MapSchoolEvolutionComponent implements OnInit {
   //     `;
   //   }
   // }
+  private setMapLayers() {
+    this.shapeService.getCountriesShapes().subscribe((country) => {
+      country.features.forEach((item) => {
+        if (item.id in this.evolutionData.data) {
+          item.evolutionData = this.evolutionData.data[item.id];
+        } else {
+          item.evolutionData = null;
+        }
+      });
+      this.initStatesLayer(country);
+    });
+  }
+
   /**
    *
    * @param theDate date object that will be increased
@@ -252,7 +245,8 @@ export class MapSchoolEvolutionComponent implements OnInit {
    */
   private increaseDate(theDate: Date, day: number = 1): void {
     theDate.setDate(theDate.getDate() + day);
-    this.info.update(this.formatDateDefault(this.casesDate));
+    this.info.update(this.stringDateDefault(this.casesDate));
+    this.setMapLayers();
   }
   /**
    *
@@ -261,13 +255,47 @@ export class MapSchoolEvolutionComponent implements OnInit {
    */
   private decreaseDate(theDate: Date, day: number = 1): void {
     theDate.setDate(theDate.getDate() - day);
-    this.info.update(this.formatDateDefault(this.casesDate));
+    this.info.update(this.stringDateDefault(this.casesDate));
+    this.setMapLayers();
+  }
+  /**
+   *
+   */
+  public async playEvolution() {
+    this.isPlayingEvolution = !this.isPlayingEvolution;
+
+    let isDateSet = false;
+    let playSpeed = 200;
+    const sleep = (ms: number) => {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    };
+    for (let i = 0; i < this.evolutionData.dates.length; i++) {
+      if (this.isPlayingEvolution) {
+        const date = this.evolutionData.dates[i];
+        if (!isDateSet) {
+          const [d, m, y] = date.split("/");
+          this.casesDate = new Date(`${y}/${m}/${d}`);
+          this.info.update(this.stringDateDefault(this.casesDate));
+          this.setMapLayers();
+          isDateSet = true;
+          await sleep(playSpeed);
+        } else {
+          await sleep(playSpeed);
+          this.increaseDate(this.casesDate);
+        }
+        if (date == "28/01/2020") {
+          playSpeed = 500;
+        }
+      } else {
+        break;
+      }
+    }
   }
   /**
    *
    * @param date a Date obj will be formatted into year/month/day
    */
-  private formatDateDefault(date: Date): string {
+  private stringDateDefault(date: Date): string {
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const formattedDate = `${date.getFullYear()}/${
@@ -279,7 +307,7 @@ export class MapSchoolEvolutionComponent implements OnInit {
    *
    * @param date a Date obj will be formatted into day/month/year
    */
-  private formatDateDMY(date: Date) {
+  private stringDateDMY(date: Date) {
     const month = date.getMonth() + 1;
     const day = date.getDate();
     const formattedDate = `${day < 10 ? "0" + day : day}/${
