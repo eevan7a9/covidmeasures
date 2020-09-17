@@ -25,9 +25,7 @@ export class SchoolEvolutionComponent implements OnInit {
     );
     this.isMobile = window.innerWidth > mobileWidth ? false : true;
 
-    this.schoolClosureData = await this.http
-      .get(`${aws}/school_closure.json`)
-      .toPromise();
+    this.schoolClosureData = ["s"];
     this.evolutionData = await this.http
       .get(`${aws}/evolution.json`)
       .toPromise();

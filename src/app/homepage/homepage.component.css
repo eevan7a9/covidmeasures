@@ -48,7 +48,7 @@ button {
 }
 .top_card {
   min-height: 90vh;
-  background-image: url("./../../assets/img/virus_bg.png");
+  /* background-image: url("./../../assets/img/virus_bg.png"); */
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
