@@ -32,6 +32,7 @@ import { NgxPaginationModule } from "ngx-pagination";
 import { HomeComponent } from "app/homepage/homepage.component";
 import { NewsVideosComponent } from "../../news-videos/news-videos.component";
 import { ComponentsModule } from "../../components/components.module"; // holds imports of all custom app components
+
 @NgModule({
   imports: [
     CommonModule,
@@ -67,5 +68,6 @@ import { ComponentsModule } from "../../components/components.module"; // holds 
     TestingComponent,
     NewsVideosComponent,
   ],
+
 })
 export class AdminLayoutModule {}
